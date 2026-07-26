@@ -1,15 +1,18 @@
-# ProFact - Sistema de Gestión de Inventario
+# ProFact - Sistema de Facturación Electrónica Inteligente
 
-Sistema web completo para la gestión de inventario de productos, facturación y administración empresarial.
+Sistema web completo para gestión de inventario, facturación y administración empresarial.
 
 ## Stack Tecnológico
 
 ### Frontend
 | Tecnología | Uso |
 |------------|-----|
-| React 19 | Framework UI |
-| TypeScript | Tipado estático |
-| Vite | Compilador |
+| React 19 | Framework UI (componentes `.jsx`) |
+| JavaScript (JSX) | Lenguaje de programación |
+| Vite 5 | Compilador y bundler |
+| React Router 7 | Navegación SPA |
+| Recharts | Gráficas y reportes |
+| jsPDF | Generación de facturas PDF |
 
 ### Backend
 | Tecnología | Uso |
@@ -23,100 +26,110 @@ Sistema web completo para la gestión de inventario de productos, facturación y
 | Tecnología | Uso |
 |------------|-----|
 | Firebase Authentication | Login/Registro de usuarios |
-| Cloud Firestore | Base de datos de productos, categorías y empleados |
+| Cloud Firestore | Base de datos de productos, categorías y usuarios |
 
 ---
 
 ## Funcionalidades
 
-### 1. Landing Page
-- Página de inicio con hero, estadísticas y características
-- Secciones: Inicio, Nosotros, Planes, Capacitación
-- Navbar responsive
+### 1. Landing Pages (HTML + CSS standalone)
+- Páginas estáticas independientes: Inicio, Nosotros, Planes, Capacitación
+- Navbar responsive con enlaces a páginas HTML
+- Funcionan sin JavaScript ni backend
 
-### 2. Login / Registro
+### 2. Login / Registro (React + Firebase)
 - **Firebase Auth**: Login y registro con correo y contraseña
-- **Spring Boot**: Login alternativo con usuario y contraseña
+- **Spring Boot**: Login alternativo con JWT
 - Credenciales locales: `root` / `12345`
+- Roles: ADMIN, VENDEDOR, usuario
 
-### 3. Dashboard Principal
+### 3. Dashboard Principal (React + Firestore)
 - Métricas en tiempo real (productos, stock, alertas)
 - Últimos productos registrados
-- Actividad reciente
+- Conectado a Firestore
 
-### 4. CRUD Productos (Firestore)
+### 4. Inventario - CRUD Productos (React + Firestore)
 - Crear, leer, actualizar y eliminar productos
 - Gestión de categorías
 - Control de stock con alertas
-- Búsqueda de productos
 
-### 5. CRUD Usuarios (Firestore + Firebase Auth)
+### 5. Usuarios (React + Firestore + Firebase Auth)
 - Crear usuarios con credenciales de acceso
-- Roles: administrador y usuario
+- Roles: administrador, vendedor, usuario
 - Activar/desactivar usuarios
 
-### 6. CRUD Compras (Spring Boot)
+### 6. Compras (React + Spring Boot)
 - Registro de compras con proveedor
 - Detalle de productos y cantidades
 - Cálculo automático de subtotal, IVA y total
 
-### 7. CRUD Ventas (Spring Boot)
+### 7. Ventas (React + Spring Boot)
 - Registro de ventas con cliente
 - Generación de facturas PDF
 - Historial de ventas
 
-### 8. Reportes (Spring Boot)
-- Gráficas de ventas y compras
+### 8. Reportes (React + Spring Boot)
+- Gráficas de ventas y compras (Recharts)
 - Productos más vendidos
-- Resumen financiero
+- KPIs y métricas financieras
 
-### 9. Clientes y Proveedores (Spring Boot)
+### 9. Clientes y Proveedores (React + Spring Boot)
 - Gestión completa de clientes
 - Gestión completa de proveedores
 
-### 10. Configuración (Spring Boot)
+### 10. Configuración (React + Spring Boot)
 - Parámetro global de IVA
+- Conectado con Compras y Ventas
 
 ---
 
 ## Estructura del Proyecto
 
 ```
-ProyectoDI/
-├── frontend/                          # React + Vite + TypeScript
+ProyectoFinal_Interfaces/
+├── frontend/                              # React + Vite + JavaScript
+│   ├── public/pages/                      # Landing pages HTML standalone
+│   │   ├── inicio.html
+│   │   ├── nosotros.html
+│   │   ├── planes.html
+│   │   └── capacitacion.html
 │   ├── src/
+│   │   ├── main.jsx                       # Punto de entrada React
+│   │   ├── App.jsx                        # BrowserRouter root
+│   │   ├── index.css                      # Estilos landing pages
+│   │   ├── dashboard.css                  # Estilos dashboard (todos los módulos)
 │   │   ├── core/
-│   │   │   ├── config/
-│   │   │   │   └── firebase.config.ts       # Configuración Firebase
-│   │   │   ├── context/
-│   │   │   │   └── AuthContext.tsx           # Autenticación (Firebase + fallback)
-│   │   │   ├── services/
-│   │   │   │   └── firestore.service.ts     # Servicio CRUD Firestore
-│   │   │   ├── api/
-│   │   │   │   └── api.ts                   # Cliente HTTP (Spring Boot)
-│   │   │   ├── components/                  # Componentes reutilizables
-│   │   │   ├── layouts/                     # Layouts de páginas
-│   │   │   └── router/                      # Rutas
-│   │   ├── modules/
-│   │   │   ├── landing/                     # Páginas públicas
-│   │   │   └── dashboard/                   # Páginas privadas
-│   │   └── assets/
-│   ├── .env                                  # Variables de entorno Firebase
+│   │   │   ├── config/firebase.config.js  # Configuración Firebase
+│   │   │   ├── context/AuthContext.jsx     # Autenticación (Firebase + fallback)
+│   │   │   ├── services/firestore.service.js  # Servicio CRUD Firestore
+│   │   │   ├── api/api.js                 # Cliente HTTP (Spring Boot)
+│   │   │   ├── components/                # Componentes reutilizables (Modal, HtmlRedirect)
+│   │   │   ├── layouts/                   # Layouts (DashboardLayout, LandingLayout)
+│   │   │   └── router/AppRouter.jsx       # Rutas de la aplicación
+│   │   └── modules/
+│   │       ├── landing/                   # Páginas de login
+│   │       │   ├── pages/Sesion.jsx
+│   │       │   └── components/ (Navbar, Footer)
+│   │       └── dashboard/                 # Módulos del dashboard
+│   │           ├── pages/                 # Compras, Ventas, Inventario, etc.
+│   │           └── components/            # Sidebar, Topbar
+│   ├── index.html                         # Entry HTML
+│   ├── vite.config.js                     # Configuración Vite 5
 │   └── package.json
 │
-├── backend/                           # Spring Boot + Java 21
+├── backend/                               # Spring Boot + Java 21
 │   ├── src/main/java/com/binasystem/profact/
-│   │   ├── controller/                # Endpoints REST
-│   │   ├── service/                   # Lógica de negocio
-│   │   ├── entity/                    # Entidades JPA
-│   │   ├── dto/                       # Data Transfer Objects
-│   │   ├── repository/                # Repositorios Spring Data
-│   │   ├── security/                  # JWT + Spring Security
-│   │   ├── config/                    # Configuración CORS, datos
-│   │   └── exception/                 # Manejo de errores
+│   │   ├── controller/                    # Endpoints REST
+│   │   ├── service/                       # Lógica de negocio
+│   │   ├── entity/                        # Entidades JPA
+│   │   ├── dto/                           # Data Transfer Objects
+│   │   ├── repository/                    # Repositorios Spring Data
+│   │   ├── security/                      # JWT + Spring Security
+│   │   ├── config/                        # Configuración CORS, datos
+│   │   └── exception/                     # Manejo de errores
 │   ├── src/main/resources/
-│   │   └── application.properties     # Config Spring Boot
-│   └── pom.xml                        # Dependencias Maven
+│   │   └── application.properties
+│   └── pom.xml
 │
 └── README.md
 ```
@@ -235,18 +248,18 @@ El frontend corre en `http://localhost:5173`
 
 ## Rutas
 
-### Públicas
-| Ruta | Descripción |
-|------|-------------|
-| `/` | Inicio (Landing) |
-| `/nosotros` | Nosotros |
-| `/planes` | Planes |
-| `/capacitacion` | Capacitación |
-| `/sesion` | Login / Registro |
+### Landing Pages (HTML standalone)
+| Ruta | Archivo |
+|------|---------|
+| `/` | Redirect → `public/pages/inicio.html` |
+| `/nosotros` | Redirect → `public/pages/nosotros.html` |
+| `/planes` | Redirect → `public/pages/planes.html` |
+| `/capacitacion` | Redirect → `public/pages/capacitacion.html` |
 
-### Privadas (requieren login)
+### React (requieren JavaScript)
 | Ruta | Descripción | Backend |
 |------|-------------|---------|
+| `/sesion` | Login / Registro | Firebase Auth |
 | `/dashboard` | Dashboard principal | Firestore |
 | `/dashboard/inventario` | CRUD Productos | Firestore |
 | `/dashboard/usuarios` | CRUD Usuarios | Firestore + Auth |
@@ -261,8 +274,8 @@ El frontend corre en `http://localhost:5173`
 
 ## Notas
 
-- **Landing pages** funcionan sin backend ni Firebase
-- **Inventario, Usuarios** usan Firestore (no necesitan Spring Boot)
+- **Landing pages** son HTML + CSS standalone, funcionan sin backend ni Firebase
+- **Inventario y Usuarios** usan Firestore (no necesitan Spring Boot)
 - **Compras, Ventas, Reportes, Clientes, Proveedores, Configuración** usan Spring Boot
-- Si Spring Boot no está corriendo, esas páginas mostrarán error
+- Si Spring Boot no está corriendo, esas páginas mostrarán error de conexión
 - La base de datos H2 del backend se crea automáticamente al iniciar
